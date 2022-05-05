@@ -6,6 +6,7 @@ import tensorflow as tf
 from deepq_model import DeepQNetwork
 from agent import Agent
 from game import SnakeGameAI, Direction, Point
+from helper import plot
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
@@ -53,38 +54,11 @@ def visualize_data(total_rewards):
     pass 
 
 
-def train_step(model, state, action, reward, next_state, done):
-    state = tf.convert_to_tensor(state, dtype= tf.float32)
-    next_state = tf.convert_to_tensor(next_state, tf.float32)
-    action = tf.convert_to_tensor(action, tf.float32)
-    reward = tf.convert_to_tensor(reward, tf.float32)
-
-    # sometimes we input data that is not "batched", 
-    # this makes it a size one tensor in the batch dimension
-    if len(state.shape) == 1:
-        state = tf.expand_dims(state, 0)
-        next_state = tf.expand_dims(next_state, 0)
-        action = tf.expand_dims(action, 0)
-        reward = tf.expand_dims(reward, 0)
-        done = (done, )
-    
-    with tf.GradientTape() as tape:
-        loss = model.loss(state, action, reward, next_state, done)
-    
-    gradients = tape.gradient(loss, model.trainable_variables)
-    model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-
-
 def main():
     # if len(sys.argv) != 2 or sys.argv[1] not in {"REINFORCE", "REINFORCE_BASELINE"}:
     #     print("USAGE: python assignment.py <Model Type>")
     #     print("<Model Type>: [REINFORCE/REINFORCE_BASELINE]")
     #     exit()
-
-    env = gym.make("CartPole-v1")
-    state_size = env.observation_space.shape[0]
-    num_actions = env.action_space.n
-    gamma = 0.99
 
     # Initialize data
     plot_scores = []

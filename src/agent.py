@@ -17,9 +17,10 @@ class Agent:
         self.epsilon = 0 # randomness
         self.gamma = 0.9 # discount rate
         self.memory = deque(maxlen=MAX_MEMORY) # popleft()
-        # self.model = Linear_QNet(11, 256, 3)
-        self.trainer = DeepQNetwork(tf.keras.Model, lr=LR, gamma=self.gamma)
-
+        
+        self.state_size = 11
+        self.num_actions = 3
+        self.model = DeepQNetwork(self.state_size, self.num_actions, self.gamma)
 
     def get_state(self, game):
         head = game.snake[0]
@@ -77,13 +78,34 @@ class Agent:
             mini_sample = self.memory
 
         states, actions, rewards, next_states, dones = zip(*mini_sample)
-        self.trainer.train_step(states, actions, rewards, next_states, dones)
+        self.train_step(self.model, states, actions, rewards, next_states, dones)
         #for state, action, reward, nexrt_state, done in mini_sample:
         #    self.trainer.train_step(state, action, reward, next_state, done)
 
     def train_short_memory(self, state, action, reward, next_state, done):
+        self.train_step(self.model, state, action, reward, next_state, done)
+
+    def train_step(model, state, action, reward, next_state, done):
+        state = tf.convert_to_tensor(state, dtype= tf.float32)
+        next_state = tf.convert_to_tensor(next_state, tf.float32)
+        action = tf.convert_to_tensor(action, tf.float32)
+        reward = tf.convert_to_tensor(reward, tf.float32)
+
+        # sometimes we input data that is not "batched", 
+        # this makes it a size one tensor in the batch dimension
+        if len(state.shape) == 1:
+            state = tf.expand_dims(state, 0)
+            next_state = tf.expand_dims(next_state, 0)
+            action = tf.expand_dims(action, 0)
+            reward = tf.expand_dims(reward, 0)
+            done = (done, )
         
-        self.trainer.train_step(state, action, reward, next_state, done)
+        with tf.GradientTape() as tape:
+            loss = model.loss(state, action, reward, next_state, done)
+        
+        gradients = tape.gradient(loss, model.trainable_variables)
+        model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+
 
     def get_action(self, state):
         # random moves: tradeoff exploration / exploitation
