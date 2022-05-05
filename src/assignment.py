@@ -1,6 +1,5 @@
 import os
 import sys
-import gym
 from pylab import *
 import numpy as np
 import tensorflow as tf
