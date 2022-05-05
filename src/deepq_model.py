@@ -7,7 +7,7 @@ import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 class DeepQNetwork(tf.keras.Model):
-    def __init__(self, state_size, num_actions):
+    def __init__(self, state_size, num_actions, gamma):
         """
         The DeepQNetwork class that inherits from tf.keras.Model
         The forward pass calculates the policy for the agent given a batch of states.
@@ -18,15 +18,16 @@ class DeepQNetwork(tf.keras.Model):
         """
         super(DeepQNetwork, self).__init__()
         self.num_actions = num_actions
+        self.gamma = gamma
         
         # TODO: Define network parameters and optimizer
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
         self.dense1_size = 10
-        self.dense2_size = 10
+        #self.dense2_size = 10
 
         self.qvalue_network = tf.keras.Sequential([
             tf.keras.layers.Dense(self.dense1_size, input_shape=(state_size,), activation = 'relu'),
-            tf.keras.layers.Dense(self.num_actions),
+            tf.keras.layers.Dense(self.num_actions)
         ])
 
 
@@ -41,10 +42,10 @@ class DeepQNetwork(tf.keras.Model):
         :return: A [episode_length,num_actions] matrix representing the Q values of each action
         for each state in the episode
         """
-        prob = self.qvalue_network(states)
-        return prob
+        qvals = self.qvalue_network(states)
+        return qvals
 
-    def loss(self, states, actions, rewards, next_states):
+    def loss(self, states, actions, rewards, next_states, done):
         """
         Computes the loss for the agent. Make sure to understand the handout clearly when implementing this.
 
@@ -55,6 +56,18 @@ class DeepQNetwork(tf.keras.Model):
         """
         # TODO:
         # Use MSE between Q_new and Q for loss
-        #tf.reduce_max(next_qvals, axis=[1])
-        pass
+        allq_vals = self.call(states)
+        # output is batch_size x num_actions
+        # need to grab the Q-value corresponding to the action we chose
+        predq = tf.gather_nd(allq_vals, actions, batch_dims=1)
+        # output is batch_size x 1
+
+        for i in range(len(done)):
+            if not(done[i]):
+                future_state_val = tf.reduce_max(self.call(next_states[i]))
+                targetq = rewards + self.gamma * future_state_val
+
+        diffq = predq - targetq
+        loss = tf.reduce_sum(tf.multiply(diffq, diffq))
+        return loss
 
