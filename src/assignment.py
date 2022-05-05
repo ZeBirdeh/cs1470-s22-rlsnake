@@ -64,7 +64,7 @@ def train_step(model, state, action, reward, next_state, done):
     # this makes it a size one tensor in the batch dimension
     if len(state.shape) == 1:
         state = tf.expand_dims(state, 0)
-        next_state =tf.expand_dims(next_state, 0)
+        next_state = tf.expand_dims(next_state, 0)
         action = tf.expand_dims(action, 0)
         reward = tf.expand_dims(reward, 0)
         done = (done, )

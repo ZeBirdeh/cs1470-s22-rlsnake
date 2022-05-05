@@ -54,7 +54,6 @@ class DeepQNetwork(tf.keras.Model):
         :param discounted_rewards: Discounted rewards throughout a complete episode (represented as an [episode_length] array)
         :return: loss, a Tensorflow scalar
         """
-        # TODO:
         # Use MSE between Q_new and Q for loss
         allq_vals = self.call(states)
         # output is batch_size x num_actions
@@ -62,10 +61,14 @@ class DeepQNetwork(tf.keras.Model):
         predq = tf.gather_nd(allq_vals, actions, batch_dims=1)
         # output is batch_size x 1
 
+        # for each index, if the game is done, we don't add the value of the next state
+        targetq = rewards
         for i in range(len(done)):
             if not(done[i]):
+                # there might be a bug with self.call(next_states[i]) since data isn't batched
+                # may have to expand dims or mess with output dims
                 future_state_val = tf.reduce_max(self.call(next_states[i]))
-                targetq = rewards + self.gamma * future_state_val
+                targetq[i] += self.gamma * future_state_val
 
         diffq = predq - targetq
         loss = tf.reduce_sum(tf.multiply(diffq, diffq))
