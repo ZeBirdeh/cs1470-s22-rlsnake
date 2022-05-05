@@ -4,8 +4,9 @@ import gym
 from pylab import *
 import numpy as np
 import tensorflow as tf
+from deepq_model import DeepQNetwork
 from reinforce import Reinforce
-from reinforce_with_baseline import ReinforceWithBaseline
+from reinforce_model import ReinforceWithBaseline
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
@@ -155,10 +156,7 @@ def main():
     num_actions = env.action_space.n
 
     # Initialize model
-    if sys.argv[1] == "REINFORCE":
-        model = Reinforce(state_size, num_actions)
-    elif sys.argv[1] == "REINFORCE_BASELINE":
-        model = ReinforceWithBaseline(state_size, num_actions)
+    model = DeepQNetwork(state_size, num_actions)
 
     # TODO:
     # 1) Train your model for 650 episodes, passing in the environment and the agent.
