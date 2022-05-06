@@ -115,7 +115,7 @@ class Agent:
             move = random.randint(0, 2)
             final_move[move] = 1
         else:
-            state0 = tf.Tensor(state, dtype=tf.float32)
+            state0 = tf.convert_to_tensor(state, dtype=tf.float32)
             prediction = self.model(state0)
             move = tf.math.argmax(prediction).item()
             final_move[move] = 1
