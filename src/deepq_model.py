@@ -10,7 +10,6 @@ class DeepQNetwork(tf.keras.Model):
         """
         The DeepQNetwork class that inherits from tf.keras.Model
         The forward pass calculates the policy for the agent given a batch of states.
-
         :param state_size: number of parameters that define the state. You don't necessarily have to use this, 
                            but it can be used as the input size for your first dense layer.
         :param num_actions: number of actions in an environment
@@ -35,7 +34,6 @@ class DeepQNetwork(tf.keras.Model):
         Performs the forward pass on a batch of states to generate the action probabilities.
         This returns a policy tensor of shape [episode_length, num_actions], where each row is a
         probability distribution over actions for each state.
-
         :param states: An [episode_length, state_size] dimensioned array
         representing the history of states of an episode
         :return: A [episode_length,num_actions] matrix representing the Q values of each action
@@ -47,7 +45,6 @@ class DeepQNetwork(tf.keras.Model):
     def loss(self, states, actions, rewards, next_states, done):
         """
         Computes the loss for the agent. Make sure to understand the handout clearly when implementing this.
-
         :param states: A batch of states of shape [episode_length, state_size]
         :param actions: History of actions taken at each timestep of the episode (represented as an [episode_length] array)
         :param discounted_rewards: Discounted rewards throughout a complete episode (represented as an [episode_length] array)
@@ -78,4 +75,3 @@ class DeepQNetwork(tf.keras.Model):
         diffq = predq - targetq
         loss = tf.reduce_sum(tf.multiply(diffq, diffq))
         return loss
-
