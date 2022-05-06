@@ -1,4 +1,5 @@
 import os
+import gym
 import numpy as np
 import tensorflow as tf
 
@@ -65,7 +66,7 @@ class DeepQNetwork(tf.keras.Model):
         for i in range(len(done)):
             if not(done[i]):
                 # there might be a bug with self.call(next_states[i]) since data isn't batched
-                # may have to expand dims or mess with output dims
+                # may have to expand dims or mess with output d
                 future_state_val = tf.reduce_max(self.call(next_states[i]))
                 targetq[i] += self.gamma * future_state_val
 
