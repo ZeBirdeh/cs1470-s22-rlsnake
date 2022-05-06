@@ -85,11 +85,11 @@ class Agent:
     def train_short_memory(self, state, action, reward, next_state, done):
         self.train_step(self.model, state, action, reward, next_state, done)
 
-    def train_step(model, state, action, reward, next_state, done):
-        state = tf.convert_to_tensor(state, dtype= tf.float32)
-        next_state = tf.convert_to_tensor(next_state, tf.float32)
-        action = tf.convert_to_tensor(action, tf.float32)
-        reward = tf.convert_to_tensor(reward, tf.float32)
+    def train_step(self, model, state, action, reward, next_state, done):
+        state = tf.convert_to_tensor(state, dtype=tf.float32)
+        next_state = tf.convert_to_tensor(next_state, dtype=tf.float32)
+        action = tf.convert_to_tensor(action, dtype=tf.float32)
+        reward = tf.convert_to_tensor(reward, dtype=tf.float32)
 
         # sometimes we input data that is not "batched", 
         # this makes it a size one tensor in the batch dimension
@@ -115,9 +115,10 @@ class Agent:
             move = random.randint(0, 2)
             final_move[move] = 1
         else:
-            state0 = tf.convert_to_tensor(state, dtype=tf.float32)
+            state0 = tf.expand_dims(tf.convert_to_tensor(state, dtype=tf.float32), axis=0)
             prediction = self.model(state0)
-            move = tf.math.argmax(prediction).item()
+            move = tf.math.argmax(tf.squeeze(prediction))
+            # print(move)
             final_move[move] = 1
 
         return final_move

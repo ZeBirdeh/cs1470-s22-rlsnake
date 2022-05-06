@@ -92,7 +92,7 @@ def main():
 
             if score > record:
                 record = score
-                agent.model.save()
+                #agent.model.save()
 
             print('Game', agent.n_games, 'Score', score, 'Record:', record)
 
