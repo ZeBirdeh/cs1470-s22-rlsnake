@@ -33,6 +33,7 @@ class SnakeGameAI:
         # init display
         self.display = pygame.display.set_mode((self.w, self.h))
         pygame.display.set_caption('Snake')
+        self.gui_enabled = False
         self.clock = pygame.time.Clock()
         self.reset()
 
@@ -51,6 +52,8 @@ class SnakeGameAI:
         self._place_food()
         self.frame_iteration = 0
 
+    def play_next(self):
+        self.gui_enabled = True
 
     def _place_food(self):
         x = random.randint(0, (self.w-BLOCK_SIZE )//BLOCK_SIZE )*BLOCK_SIZE
@@ -78,6 +81,8 @@ class SnakeGameAI:
         if self.is_collision() or self.frame_iteration > 100*len(self.snake):
             game_over = True
             reward = -10
+            # disable the gui after showing it once
+            self.gui_enabled = False
             return reward, game_over, self.score
 
         # 4. place new food or just move
@@ -89,8 +94,9 @@ class SnakeGameAI:
             self.snake.pop()
         
         # 5. update ui and clock
-        self._update_ui()
-        self.clock.tick(SPEED)
+        if self.gui_enabled:
+            self._update_ui()
+            self.clock.tick(SPEED)
         # 6. return game over and score
         return reward, game_over, self.score
 

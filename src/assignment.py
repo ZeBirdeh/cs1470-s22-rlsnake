@@ -96,6 +96,9 @@ def main():
 
             print('Game', agent.n_games, 'Score', score, 'Record:', record)
 
+            if agent.n_games % 20 == 0:
+                game.play_next()
+    
             plot_scores.append(score)
             total_score += score
             mean_score = total_score / agent.n_games
