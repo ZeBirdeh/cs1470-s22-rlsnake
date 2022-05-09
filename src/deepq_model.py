@@ -19,12 +19,12 @@ class DeepQNetwork(tf.keras.Model):
         self.gamma = gamma
         
         # TODO: Define network parameters and optimizer
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
-        self.dense1_size = 10
-        #self.dense2_size = 10
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+        self.dense_size = 256
 
         self.qvalue_network = tf.keras.Sequential([
-            tf.keras.layers.Dense(self.dense1_size, input_shape=(state_size,), activation = 'relu'),
+            #tf.keras.layers.Dense(self.dense1_size, input_shape=(state_size,), activation = 'relu'),
+            tf.keras.layers.Dense(self.dense_size, activation = 'relu'),
             tf.keras.layers.Dense(self.num_actions)
         ])
 
@@ -54,9 +54,6 @@ class DeepQNetwork(tf.keras.Model):
         allq_vals = self.call(states)
         # output is batch_size x num_actions
         # need to grab the Q-value corresponding to the action we chose
-        # print(allq_vals)
-        # print(actions)
-        # print(tf.where(actions))
         predq = tf.gather_nd(allq_vals, tf.where(actions))
         # output is batch_size x 1
 
