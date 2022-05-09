@@ -7,7 +7,7 @@ from game import SnakeGameAI, Direction, Point
 from deepq_model import DeepQNetwork
 # from helper import plot
 
-MAX_MEMORY = 100_000
+MAX_MEMORY = 10_000
 BATCH_SIZE = 1000
 LR = 0.001
 
@@ -94,3 +94,6 @@ class Agent:
             final_move[move] = 1
 
         return final_move
+
+    def save_model(self, path):
+        self.model.save_weights(path)

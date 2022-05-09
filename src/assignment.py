@@ -7,6 +7,7 @@ from deepq_model import DeepQNetwork
 from agent import Agent
 from game import SnakeGameAI, Direction, Point
 from helper import plot
+import pickle
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
@@ -67,6 +68,18 @@ def main():
     record = 0
     agent = Agent()
     game = SnakeGameAI()
+    # load model from file
+    if len(sys.argv) > 1 and sys.argv[1].lower() == "file":
+        try:
+            agent.model.load_weights('./checkpoints/' + sys.argv[2])
+            f = open('./checkpoints/history-' + sys.argv[2], 'rb')
+            plot_scores, plot_mean_scores, total_score, record, agent.n_games, agent.epsilon = pickle.load(f)
+            f.close()
+            print(f'Loading checkpoint from {sys.argv[2]}')
+        except:
+            pass
+
+
     while True:
         # get old state
         state_old = agent.get_state(game)
@@ -96,15 +109,22 @@ def main():
 
             print('Game', agent.n_games, 'Score', score, 'Record:', record)
 
-            if agent.n_games % 20 == 0:
-                game.play_next()
-    
             plot_scores.append(score)
             total_score += score
             mean_score = total_score / agent.n_games
             plot_mean_scores.append(mean_score)
             plot(plot_scores, plot_mean_scores)
 
+            if agent.n_games % 20 == 0:
+                game.play_next()
+                if len(sys.argv) > 1 and sys.argv[1].lower() == "file":
+                    print(f'Saving checkpoint for {sys.argv[2]}')
+                    agent.save_model('./checkpoints/' + sys.argv[2])
+                    f = open('./checkpoints/history-' + sys.argv[2], 'wb')
+                    pickle.dump((plot_scores, plot_mean_scores, total_score, 
+                                record, agent.n_games, agent.epsilon), f)
+                    f.close()
+                    
     # Initialize model
     # model = DeepQNetwork(state_size, num_actions, gamma)
 
