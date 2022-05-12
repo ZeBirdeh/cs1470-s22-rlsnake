@@ -20,7 +20,7 @@ class DeepQNetwork(tf.keras.Model):
         
         # TODO: Define network parameters and optimizer
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
-        self.dense_size = 256
+        self.dense_size = 200
 
         self.qvalue_network = tf.keras.Sequential([
             #tf.keras.layers.Dense(self.dense1_size, input_shape=(state_size,), activation = 'relu'),
@@ -59,9 +59,7 @@ class DeepQNetwork(tf.keras.Model):
 
         # for each index, if the game is done, we don't add the value of the next state
         targetq = rewards.numpy()
-        #np.zeros(rewards.shape)
         for i in range(len(done)):
-            #targetq[i] = rewards[i]
             if not(done[i]):
                 # there might be a bug with self.call(next_states[i]) since data isn't batched
                 # may have to expand dims or mess with output dims

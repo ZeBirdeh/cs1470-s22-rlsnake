@@ -8,21 +8,21 @@ pygame.init()
 font = pygame.font.SysFont("bahnschrift", 25)
 
 class Direction(Enum):
-    RIGHT = 1
-    LEFT = 2
+    R = 1
+    L = 2
     UP = 3
-    DOWN = 4
+    D = 4
 
 Point = namedtuple('Point', 'x, y')
 
 # rgb colors
 WHITE = (255, 255, 255)
 RED = (200,0,0)
-BLUE1 = (69,139,0)
-BLUE2 = (118,238,0)
+GREEN1 = (69,139,0)
+GREEN2 = (118,238,0)
 BLACK = (0,0,0)
 
-BLOCK_SIZE = 20
+BSIZE = 20
 SPEED = 40
 
 class SnakeGameAI:
@@ -40,12 +40,12 @@ class SnakeGameAI:
 
     def reset(self):
         # init game state
-        self.direction = Direction.RIGHT
+        self.direction = Direction.R
 
         self.head = Point(self.w/2, self.h/2)
         self.snake = [self.head,
-                      Point(self.head.x-BLOCK_SIZE, self.head.y),
-                      Point(self.head.x-(2*BLOCK_SIZE), self.head.y)]
+                      Point(self.head.x-BSIZE, self.head.y),
+                      Point(self.head.x-(2*BSIZE), self.head.y)]
 
         self.score = 0
         self.food = None
@@ -56,8 +56,8 @@ class SnakeGameAI:
         self.gui_enabled = True
 
     def _place_food(self):
-        x = random.randint(0, (self.w-BLOCK_SIZE )//BLOCK_SIZE )*BLOCK_SIZE
-        y = random.randint(0, (self.h-BLOCK_SIZE )//BLOCK_SIZE )*BLOCK_SIZE
+        x = random.randint(0, (self.w-BSIZE )//BSIZE )*BSIZE
+        y = random.randint(0, (self.h-BSIZE )//BSIZE )*BSIZE
         self.food = Point(x, y)
         if self.food in self.snake:
             self._place_food()
@@ -105,7 +105,7 @@ class SnakeGameAI:
         if pt is None:
             pt = self.head
         # hits boundary
-        if pt.x > self.w - BLOCK_SIZE or pt.x < 0 or pt.y > self.h - BLOCK_SIZE or pt.y < 0:
+        if pt.x > self.w - BSIZE or pt.x < 0 or pt.y > self.h - BSIZE or pt.y < 0:
             return True
         # hits itself
         if pt in self.snake[1:]:
@@ -118,10 +118,10 @@ class SnakeGameAI:
         self.display.fill(BLACK)
 
         for pt in self.snake:
-            pygame.draw.rect(self.display, BLUE1, pygame.Rect(pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
-            pygame.draw.rect(self.display, BLUE2, pygame.Rect(pt.x+4, pt.y+4, 12, 12))
+            pygame.draw.rect(self.display, GREEN1, pygame.Rect(pt.x, pt.y, BSIZE, BSIZE))
+            pygame.draw.rect(self.display, GREEN2, pygame.Rect(pt.x+4, pt.y+4, 12, 12))
 
-        pygame.draw.rect(self.display, RED, pygame.Rect(self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
+        pygame.draw.rect(self.display, RED, pygame.Rect(self.food.x, self.food.y, BSIZE, BSIZE))
 
         text = font.render("Score: " + str(self.score), True, WHITE)
         self.display.blit(text, [0, 0])
@@ -129,31 +129,31 @@ class SnakeGameAI:
 
 
     def _move(self, action):
-        # [straight, right, left]
+        # [straight, R, L]
 
-        clock_wise = [Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP]
+        clock_wise = [Direction.R, Direction.D, Direction.L, Direction.UP]
         idx = clock_wise.index(self.direction)
 
         if np.array_equal(action, [1, 0, 0]):
             new_dir = clock_wise[idx] # no change
         elif np.array_equal(action, [0, 1, 0]):
             next_idx = (idx + 1) % 4
-            new_dir = clock_wise[next_idx] # right turn r -> d -> l -> u
+            new_dir = clock_wise[next_idx] # R turn r -> d -> l -> u
         else: # [0, 0, 1]
             next_idx = (idx - 1) % 4
-            new_dir = clock_wise[next_idx] # left turn r -> u -> l -> d
+            new_dir = clock_wise[next_idx] # L turn r -> u -> l -> d
 
         self.direction = new_dir
 
         x = self.head.x
         y = self.head.y
-        if self.direction == Direction.RIGHT:
-            x += BLOCK_SIZE
-        elif self.direction == Direction.LEFT:
-            x -= BLOCK_SIZE
-        elif self.direction == Direction.DOWN:
-            y += BLOCK_SIZE
+        if self.direction == Direction.R:
+            x += BSIZE
+        elif self.direction == Direction.L:
+            x -= BSIZE
+        elif self.direction == Direction.D:
+            y += BSIZE
         elif self.direction == Direction.UP:
-            y -= BLOCK_SIZE
+            y -= BSIZE
 
         self.head = Point(x, y)
